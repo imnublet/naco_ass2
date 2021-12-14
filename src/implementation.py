@@ -42,8 +42,8 @@ class RandomSearch(Algorithm):
 class GeneticAlgorithm(Algorithm):
 
 
-    def __init__(self, pop_size=22, dim=10, seed=1, base=2, mutation_type = "swap"):
-        super().__init__(max_iterations=500000)
+    def __init__(self, pop_size=22, dim=10, seed=23, base=2, mutation_type = "swap"):
+        super().__init__(max_iterations=10000)
         self.mutation_type = mutation_type
         self.dim = dim
         self.seed = seed
@@ -230,7 +230,7 @@ class GeneticAlgorithm(Algorithm):
         # print('best solution', problem.state.current_best.x)
         print('objective:',problem.objective.x )
         # while (problem.state.evaluations < self.max_iterations) and (problem.state.current_best.x != problem.objective.x):
-        while (problem.state.evaluations < self.max_iterations) and (problem.state.current_best.y != problem.objective.y):
+        while (problem.state.evaluations < self.max_iterations) and problem.state.current_best.x != 100.0:
             # print('test 3')
             parents = self.selection(problem=problem)
             offspring = self.crossover(parents)
@@ -241,7 +241,7 @@ class GeneticAlgorithm(Algorithm):
                 if new_y > self.y_best:
                     self.y_best = new_y
                     self.x_best = list(self.population[cand])
-                    # print('best x: ', self.x_best, 'with y value of:', self.y_best)
+                    print('best x: ', self.x_best, 'with y value of:', self.y_best)
                     print('sum of 1s:',sum(self.x_best))
             self.fitness_scores.clear()
         problem(self.x_best)

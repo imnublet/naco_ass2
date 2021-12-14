@@ -12,7 +12,7 @@ class CellularAutomata:
     '''Skeleton CA, you should implement this.'''
 
 
-    def __init__(self, rule_number: int, neighborhood_radius = 1, length = 10, max_steps = 500, edge=0, base = 2):
+    def __init__(self, rule_number: int, neighborhood_radius = 1, length = 10, edge=0, base = 2):
         """
         TODO:
         * Define a rule
@@ -43,7 +43,7 @@ class CellularAutomata:
         """
         rule_converted = np.base_repr(self.rule_number, base=self.base)
         rule_list = [int(x) for x in str(rule_converted)]
-        while(len(rule_list) != self.possible_rules):
+        while len(rule_list) != self.possible_rules:
             rule_list.insert(0,0)
         return rule_list
 
@@ -61,7 +61,7 @@ class CellularAutomata:
         Convert a base 10 number to a base k representation, given a certain length for the output
         """
         converted_num = np.base_repr(num, base=self.base)
-        if len(converted_num) != length:
+        while len(converted_num) != length:
             converted_num_list = [int(x) for x in str(converted_num)]
             converted_num_list.insert(0,0)
             converted_str = ''
@@ -206,8 +206,9 @@ def objective_function(c0_prime: typing.List[int]) -> float:
 
     # ga = GeneticAlgorithm(mutation_type="reverse")
     # print('rule in obj', t)
-    ca = CellularAutomata(rule_number=rule, base=base_k)
+    ca = CellularAutomata(rule_number=rule, base=base_k, length=len(ct))
     # print('de priem:', c0_prime, 'met lengte', len(c0_prime))
+
     ct_prime = ca(c0_prime, t)
     # print('ct_prime:', ct_prime)
     similarity = hamming_dist(ct_prime, ct) # You should implement this
@@ -279,7 +280,7 @@ if __name__ == '__main__':
     logger = ioh.logger.Analyzer(store_positions=True)
     # print(problem([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]))
 
-    ga = GeneticAlgorithm(mutation_type="reverse", pop_size=100, base=2)
+    ga = GeneticAlgorithm(mutation_type="insert", pop_size=25, base=base_k, seed=22)
     ga(problem)
 
     print("Best solution found:")
