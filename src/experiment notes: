@@ -1,0 +1,11 @@
+The following config seem to work well:
+
+## for problem line 1
+
+pop = 12
+n_seed = 5
+mut_rate = 0.48
+ga = GeneticAlgorithm(mutation_type="insert", pop_size=pop, base=base_k, seed=n_seed,mutation_rate=mut_rate)
+ga(problem)
+
+

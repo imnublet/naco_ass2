@@ -41,9 +41,9 @@ class RandomSearch(Algorithm):
 
 class GeneticAlgorithm(Algorithm):
 
-
-    def __init__(self, pop_size=22, dim=10, seed=23, base=2, mutation_type = "swap"):
-        super().__init__(max_iterations=10000)
+    def __init__(self, pop_size=22, dim=10, seed=23, base=2, mutation_type="swap", mutation_rate=0.5, selection="proportional"):
+        assert selection == "proportional" or selection == "rank", "selection only accepts \"proportional\" or \"rank\""
+        super().__init__(max_iterations=50000)
         self.mutation_type = mutation_type
         self.dim = dim
         self.seed = seed
@@ -54,6 +54,8 @@ class GeneticAlgorithm(Algorithm):
         self.y_best = 0.0
         self.x_best : list[int] = []
         self.fitness_scores = []
+        self.mutation_rate = mutation_rate
+        self.selection_method = selection
 
 
     def generate_candidate(self):
@@ -94,8 +96,19 @@ class GeneticAlgorithm(Algorithm):
             candidates = np.append(candidates, [[self.population[candidate], self.selection_probabilities(candidate)]], axis=0)
         weights = np.array(candidates[:,1], dtype=float)
         np_candidates = np.array(candidates[:,0])
-        selected = np.random.choice(np_candidates, p = weights, size = 2)
 
+        if self.selection_method=="rank":
+            sorted_candidates = np.asarray(sorted(candidates, key=lambda l: l[1]))
+            np_candidates = np.array(sorted_candidates[:,0])
+            rank_weights = []
+            for i in range(1, self.population_size+1):
+                rank_weights.append(i)
+            sum_rank_weights = sum(rank_weights)
+            for i in range(self.population_size):
+                rank_weights[i] = rank_weights[i]/sum_rank_weights
+            selected = np.random.choice(np_candidates, p=rank_weights, size=2)
+        else:
+            selected = np.random.choice(np_candidates, p=weights, size=2)
         return selected
 
 
@@ -109,22 +122,35 @@ class GeneticAlgorithm(Algorithm):
 
     def mutation(self, offspring):
         """
-        For every child in the offspring apply either a swap mutatation or an insert mutation
+        For every child in the offspring apply either a swap, reverse or an insert mutation
         """
         new_offspring = []
+        prob = np.random.random_sample(self.population_size)
+        idx = 0
         if self.mutation_type == "swap":
             for child in offspring:
-                # if prob[idx] > 0.5:
-                child = self.swap_mutation(child)
-                new_offspring.append(child)
+                if prob[idx] > 1-self.mutation_rate:
+                    child = self.swap_mutation(child)
+                    new_offspring.append(child)
+                else:
+                    new_offspring.append(child)
+                idx += 1
         elif self.mutation_type == "insert":
             for child in offspring:
-                child = self.insert_mutation(child)
-                new_offspring.append(child)
+                if prob[idx] > 1-self.mutation_rate:
+                    child = self.insert_mutation(child)
+                    new_offspring.append(child)
+                else:
+                    new_offspring.append(child)
+                idx += 1
         else:
             for child in offspring:
-                child = self.reverse_mutation(child)
-                new_offspring.append(child)
+                if prob[idx] > 1-self.mutation_rate:
+                    child = self.reverse_mutation(child)
+                    new_offspring.append(child)
+                else:
+                    new_offspring.append(child)
+                idx += 1
 
         return new_offspring
 
@@ -195,7 +221,7 @@ class GeneticAlgorithm(Algorithm):
         """
         parentA = np.array(parents[0], dtype=int)
         parentB = np.array(parents[1], dtype=int)
-        child = np.empty(shape=[0,1], dtype=int)
+        child = np.empty(shape=[0, 1], dtype=int)
         idx_prob = np.random.random_sample(self.dim)
         for i in range(len(idx_prob)):
             if idx_prob[i] > 0.5:
@@ -228,7 +254,6 @@ class GeneticAlgorithm(Algorithm):
         self.population = self.generate_population()
         # assert problem.state.evaluations > self.max_iterations
         # print('best solution', problem.state.current_best.x)
-        print('objective:',problem.objective.x )
         # while (problem.state.evaluations < self.max_iterations) and (problem.state.current_best.x != problem.objective.x):
         while (problem.state.evaluations < self.max_iterations) and problem.state.current_best.x != 100.0:
             # print('test 3')
@@ -241,14 +266,12 @@ class GeneticAlgorithm(Algorithm):
                 if new_y > self.y_best:
                     self.y_best = new_y
                     self.x_best = list(self.population[cand])
-                    print('best x: ', self.x_best, 'with y value of:', self.y_best)
-                    print('sum of 1s:',sum(self.x_best))
+                    # print('best x: ', self.x_best, 'with y value of:', self.y_best)
             self.fitness_scores.clear()
         problem(self.x_best)
-        print('evaluations: ', problem.state.evaluations)
+        # print('evaluations: ', problem.state.evaluations)
         # return problem.state.current_best
         pass
-
 
 
 

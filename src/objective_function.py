@@ -7,6 +7,10 @@ import numpy as np
 from implementation import RandomSearch
 from implementation import GeneticAlgorithm
 
+# CHANGE THIS IN ORDER TO SELECT A DIFFERENT PROBLEM for [0, 9]
+PROBLEM_LINE = 1
+
+assert 0 <= PROBLEM_LINE <= 9, "PROBLEM_LINE SHOULD BE BETWEEN 0 AND 9"
 
 class CellularAutomata:
     '''Skeleton CA, you should implement this.'''
@@ -197,12 +201,30 @@ def read_input(line_idx=1):
     return selected_line[0], selected_line[1], selected_line[2], ct
 
 
-def objective_function(c0_prime: typing.List[int]) -> float:
+def objective_function_1(c0_prime: typing.List[int]) -> float:
     '''Skeleton objective function. You should implement a method
     which computes a similarity measure between ct_prime a suggested by your
     GA, with the true c0 state for the ct state given in the sup. material. '''
 
-    base_k, rule, t, ct = get_problem(0)
+    base_k, rule, t, ct = get_problem(PROBLEM_LINE)
+
+    # ga = GeneticAlgorithm(mutation_type="reverse")
+    # print('rule in obj', t)
+    ca = CellularAutomata(rule_number=rule, base=base_k, length=len(ct))
+    # print('de priem:', c0_prime, 'met lengte', len(c0_prime))
+
+    ct_prime = ca(c0_prime, t)
+    # print('ct_prime:', ct_prime)
+    similarity = hamming_dist(ct_prime, ct) # You should implement this
+    # print(similarity)
+    return similarity
+
+def objective_function_2(c0_prime: typing.List[int]) -> float:
+    '''Skeleton objective function. You should implement a method
+    which computes a similarity measure between ct_prime a suggested by your
+    GA, with the true c0 state for the ct state given in the sup. material. '''
+
+    base_k, rule, t, ct = get_problem(PROBLEM_LINE)
 
     # ga = GeneticAlgorithm(mutation_type="reverse")
     # print('rule in obj', t)
@@ -263,31 +285,25 @@ def get_problem(line_idx=1):
 
 
 if __name__ == '__main__':
-    base_k, rule, t, ct = get_problem(line_idx=0)
+    base_k, rule, t, ct = get_problem(line_idx=PROBLEM_LINE)
     prob_len = len(ct)
-    # print(ct)
 
     problem: ioh.problem.Integer = ioh.problem.wrap_integer_problem(
-        objective_function,
+        objective_function_1,
         "objective_function_ca_1",
         60,
         ioh.OptimizationType.Maximization,
         ioh.IntegerConstraint([0]*60, [1]*60)
     )
-    # print('variables:', problem.meta_data.n_variables)
-    # print('objective.y = ', problem.objective.y)
-
     logger = ioh.logger.Analyzer(store_positions=True)
-    # print(problem([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]))
-
-    ga = GeneticAlgorithm(mutation_type="insert", pop_size=25, base=base_k, seed=22)
+    problem.attach_logger(logger)
+    pop = 20
+    n_seed = 5
+    mut_rate = 0.3
+    ga = GeneticAlgorithm(mutation_type="swap", pop_size=pop, base=base_k, seed=n_seed, mutation_rate=mut_rate)
     ga(problem)
-
     print("Best solution found:")
     print("".join(map(str, problem.state.current_best.x)))
     print("With an objective value of:", problem.state.current_best.y)
-    # print(problem.meta_data.n_variables)
 
-    # print(problem)
-    # objective_function()
-    # base_k, rule, t, ct = read_input(line_idx=2)
+
