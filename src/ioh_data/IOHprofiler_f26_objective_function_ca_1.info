@@ -1,0 +1,3 @@
+suite = "unknown_suite", funcId = 26, funcName = "objective_function_ca_1", DIM = 60, maximization = "T", algId = "algorithm_name", algInfo = "algorithm_info"
+%
+data_f26_objective_function_ca_1/IOHprofiler_f26_DIM60.dat
