@@ -7,6 +7,8 @@ import numpy as np
 from implementation import RandomSearch
 from implementation import GeneticAlgorithm
 
+CURR_LINE = 0
+
 class CellularAutomata:
     '''Skeleton CA, you should implement this.'''
 
@@ -145,6 +147,10 @@ class CellularAutomata:
 
 
 def hamming_dist(list1, list2, quadratic=None):
+    """
+    Calculate inverted hemming distance
+    Return this as a percentage => [0,100]
+    """
     assert len(list1) == len(list2), "The length of list1 is not equal to the length of list2"
 
     same_count = 0
@@ -157,6 +163,9 @@ def hamming_dist(list1, list2, quadratic=None):
         hamming_dist_perc = same_count/len(list1)
     return hamming_dist_perc*100
 
+def change_currline(line):
+    global CURR_LINE
+    CURR_LINE = line
 
 def read_input(line_idx=0):
     config_list = []
@@ -181,7 +190,7 @@ def objective_function_1(c0_prime: typing.List[int]) -> float:
     If the target is reached fitness = 100.0
     """
 
-    base_k, rule, t, ct = get_problem(PROBLEM_LINE)
+    base_k, rule, t, ct = get_problem(CURR_LINE)
     ca = CellularAutomata(rule_number=rule, base=base_k, length=len(ct))
     ct_prime = ca(c0_prime, t)
     similarity = hamming_dist(ct_prime, ct)
@@ -223,8 +232,7 @@ if __name__ == '__main__':
             ioh.OptimizationType.Maximization,
             ioh.IntegerConstraint([0]*60, [2]*60)
         )
-        for line in range(9):
-            PROBLEM_LINE = PROBLEM_LINE+1
+        for line in range(4):
             for select in ['proportional', 'rank']:
                 for cross_method in ['uniform', 'single_point']:
                     for mut in ['reverse', 'swap', 'insert']:
@@ -251,3 +259,5 @@ if __name__ == '__main__':
                             problem.reset()
                             print(f'run {run} completed for problem {PROBLEM_LINE} and the following config:')
                             print(f'select: {select}, crossover:{cross_method}, mut_type: {mut} ')
+            PROBLEM_LINE = PROBLEM_LINE+1
+            change_currline(PROBLEM_LINE)
