@@ -44,7 +44,7 @@ class GeneticAlgorithm(Algorithm):
 
     def __init__(self, pop_size=22, dim=10, seed=23, base=2, mutation_type="swap", mutation_rate=0.5,
                  crossover="uniform", selection="proportional"):
-        super().__init__(max_iterations=50000)
+        super().__init__(max_iterations=10000)
         assert selection == "proportional" or \
                selection == "rank", "selection only accepts \"proportional\" or \"rank\""
         assert crossover == "uniform" or \
@@ -272,7 +272,6 @@ class GeneticAlgorithm(Algorithm):
     def __call__(self, problem: ioh.problem.Integer) -> None:
         self.dim = problem.meta_data.n_variables
         self.population = self.generate_population()
-        # while (problem.state.evaluations < self.max_iterations) and (problem.state.current_best.x != problem.objective.x):
         while (problem.state.evaluations < self.max_iterations) \
                 and (problem.state.current_best.x != 100.0 or problem.state.current_best.x != problem.objective.x):
             parents = self.selection(problem=problem)
@@ -287,7 +286,6 @@ class GeneticAlgorithm(Algorithm):
             self.fitness_scores.clear()
         problem(self.x_best)
         # print('evaluations: ', problem.state.evaluations)
-        # return problem.state.current_best
         pass
 
 

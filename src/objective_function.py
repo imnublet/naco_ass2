@@ -1,3 +1,6 @@
+#Authors: Sayf El Kaddouri, Luca Goeman & Mustafa Darwesh
+#How to run this file:
+#Make sure to install the requirements with 'pip3 install -r requirements'
 import typing
 import ioh
 import csv
@@ -190,7 +193,7 @@ def objective_function_1(c0_prime: typing.List[int]) -> float:
     If the target is reached fitness = 100.0
     """
 
-    base_k, rule, t, ct = get_problem(CURR_LINE)
+    base_k, rule, t, ct = get_problem(PROBLEM_LINE)
     ca = CellularAutomata(rule_number=rule, base=base_k, length=len(ct))
     ct_prime = ca(c0_prime, t)
     similarity = hamming_dist(ct_prime, ct)
@@ -261,3 +264,5 @@ if __name__ == '__main__':
                             print(f'select: {select}, crossover:{cross_method}, mut_type: {mut} ')
             PROBLEM_LINE = PROBLEM_LINE+1
             change_currline(PROBLEM_LINE)
+    print('complete')
+    pass
