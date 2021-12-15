@@ -9,3 +9,5 @@ ga = GeneticAlgorithm(mutation_type="insert", pop_size=pop, base=base_k, seed=n_
 ga(problem)
 
 
+Hoi Luca, met deze configuratie kunnen we probleem 0 oplossen van de ca_input.csv.
+Misschien nuttig voor het verslag
